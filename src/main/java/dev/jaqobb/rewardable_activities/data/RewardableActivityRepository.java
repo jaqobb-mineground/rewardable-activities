@@ -24,8 +24,10 @@
 
 package dev.jaqobb.rewardable_activities.data;
 
+import com.cryptomorin.xseries.XEntityType;
 import com.cryptomorin.xseries.XMaterial;
 import dev.jaqobb.rewardable_activities.RewardableActivitiesPlugin;
+import org.bukkit.configuration.ConfigurationSection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -35,27 +37,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.EntityType;
 
-public final class RewardableActivityRepository {
-
+public class RewardableActivityRepository {
+    
     private final RewardableActivitiesPlugin plugin;
     private final Map<XMaterial, RewardableActivity> blockBreakActivities;
     private final Map<XMaterial, RewardableActivity> blockPlaceActivities;
-    private final Map<EntityType, RewardableActivity> entityKillActivities;
-    private final Map<EntityType, RewardableActivity> entityBreedActivities;
+    private final Map<XEntityType, RewardableActivity> entityKillActivities;
+    private final Map<XEntityType, RewardableActivity> entityBreedActivities;
     private final Map<XMaterial, RewardableActivity> itemFishActivities;
-
+    
     public RewardableActivityRepository(RewardableActivitiesPlugin plugin) {
         this.plugin = plugin;
         this.blockBreakActivities = new EnumMap<>(XMaterial.class);
         this.blockPlaceActivities = new EnumMap<>(XMaterial.class);
-        this.entityKillActivities = new EnumMap<>(EntityType.class);
-        this.entityBreedActivities = new EnumMap<>(EntityType.class);
+        this.entityKillActivities = new EnumMap<>(XEntityType.class);
+        this.entityBreedActivities = new EnumMap<>(XEntityType.class);
         this.itemFishActivities = new EnumMap<>(XMaterial.class);
     }
-
+    
     public void loadAllActivities(boolean reload) {
         this.loadBlockBreakActivities(reload);
         this.loadBlockPlaceActivities(reload);
@@ -63,7 +63,7 @@ public final class RewardableActivityRepository {
         this.loadEntityBreedActivities(reload);
         this.loadItemFishActivities(reload);
     }
-
+    
     public void loadBlockBreakActivities(boolean reload) {
         if (reload) {
             this.blockBreakActivities.clear();
@@ -76,7 +76,7 @@ public final class RewardableActivityRepository {
             return material;
         }));
     }
-
+    
     public void loadBlockPlaceActivities(boolean reload) {
         if (reload) {
             this.blockPlaceActivities.clear();
@@ -89,21 +89,33 @@ public final class RewardableActivityRepository {
             return material;
         }));
     }
-
+    
     public void loadEntityKillActivities(boolean reload) {
         if (reload) {
             this.entityKillActivities.clear();
         }
-        this.entityKillActivities.putAll(this.loadActivities("entity.kill", type -> EntityType.valueOf(type.toUpperCase())));
+        this.entityKillActivities.putAll(this.loadActivities("entity.kill", type -> {
+            XEntityType entityType = XEntityType.of(type.toUpperCase()).orElse(null);
+            if (entityType == null) {
+                throw new EnumConstantNotPresentException(XEntityType.class, type);
+            }
+            return entityType;
+        }));
     }
-
+    
     public void loadEntityBreedActivities(boolean reload) {
         if (reload) {
             this.entityBreedActivities.clear();
         }
-        this.entityBreedActivities.putAll(this.loadActivities("entity.breed", type -> EntityType.valueOf(type.toUpperCase())));
+        this.entityBreedActivities.putAll(this.loadActivities("entity.breed", type -> {
+            XEntityType entityType = XEntityType.of(type.toUpperCase()).orElse(null);
+            if (entityType == null) {
+                throw new EnumConstantNotPresentException(XEntityType.class, type);
+            }
+            return entityType;
+        }));
     }
-
+    
     public void loadItemFishActivities(boolean reload) {
         if (reload) {
             this.itemFishActivities.clear();
@@ -116,7 +128,7 @@ public final class RewardableActivityRepository {
             return material;
         }));
     }
-
+    
     @SuppressWarnings("unchecked")
     private <T> Map<T, RewardableActivity> loadActivities(String path, Function<String, T> keyFunction) {
         Map<T, RewardableActivity> activities = new HashMap<>(16);
@@ -152,43 +164,43 @@ public final class RewardableActivityRepository {
         }
         return activities;
     }
-
+    
     public Collection<RewardableActivity> getBlockBreakActivities() {
         return Collections.unmodifiableCollection(this.blockBreakActivities.values());
     }
-
+    
     public RewardableActivity getBlockBreakActivity(XMaterial material) {
         return this.blockBreakActivities.get(material);
     }
-
+    
     public Collection<RewardableActivity> getBlockPlaceActivities() {
         return Collections.unmodifiableCollection(this.blockPlaceActivities.values());
     }
-
+    
     public RewardableActivity getBlockPlaceActivity(XMaterial material) {
         return this.blockPlaceActivities.get(material);
     }
-
+    
     public Collection<RewardableActivity> getEntityKillActivities() {
         return Collections.unmodifiableCollection(this.entityKillActivities.values());
     }
-
-    public RewardableActivity getEntityKillActivity(EntityType type) {
+    
+    public RewardableActivity getEntityKillActivity(XEntityType type) {
         return this.entityKillActivities.get(type);
     }
-
+    
     public Collection<RewardableActivity> getEntityBreedActivities() {
         return Collections.unmodifiableCollection(this.entityBreedActivities.values());
     }
-
-    public RewardableActivity getEntityBreedActivity(EntityType type) {
+    
+    public RewardableActivity getEntityBreedActivity(XEntityType type) {
         return this.entityBreedActivities.get(type);
     }
-
+    
     public Collection<RewardableActivity> getItemFishActivities() {
         return Collections.unmodifiableCollection(this.itemFishActivities.values());
     }
-
+    
     public RewardableActivity getItemFishActivity(XMaterial material) {
         return this.itemFishActivities.get(material);
     }
