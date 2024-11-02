@@ -6,16 +6,16 @@ Click [here](https://www.spigotmc.org/resources/rewardable-activities.86090/) to
 
 ## Features
 
-* Rewarding players when they break a block - since 1.0.0
-* Rewarding players whey they place a block - since 1.1.0
-* Rewarding players whey they kill an entity - since 1.2.0
-* Rewarding players whey they breed an entity - since 1.3.0
-* Entity breed ownership check (not rewarding players when they kill an entity that was bred by a player) - since 1.4.0
-* Block break ownership check (not rewarding players when they break a block that was placed by a player) - since 1.5.0
-* Multiple rewards per group - since 1.6.0
-* Entity spawner ownership check (not rewarding players when they kill an entity that was spawned by a spawner) - since 1.7.0
-* Rewarding players when they fish an item - since 1.8.0
-* Block place ownership check (not rewarding players when they place a block in a place where there was already a block broken by a player) - since 1.8.2
+* Rewarding players when they break a block - since 1.0.0.
+* Rewarding players whey they place a block - since 1.1.0.
+* Rewarding players whey they kill an entity - since 1.2.0.
+* Rewarding players whey they breed an entity - since 1.3.0.
+* Entity breed ownership check (not rewarding players when they kill an entity that was bred by a player) - since 1.4.0.
+* Block break ownership check (not rewarding players when they break a block that was placed by a player) - since 1.5.0.
+* Multiple rewards per group - since 1.6.0.
+* Entity spawner ownership check (not rewarding players when they kill an entity that was spawned by a spawner) - since 1.7.0.
+* Rewarding players when they fish an item - since 1.8.0.
+* Block place ownership check (not rewarding players when they place a block in a place where there was already a block broken by a player) - since 1.8.2.
 
 ## Usage
 
