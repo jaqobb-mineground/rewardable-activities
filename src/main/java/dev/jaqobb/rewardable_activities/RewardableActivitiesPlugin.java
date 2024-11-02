@@ -53,7 +53,7 @@ public class RewardableActivitiesPlugin extends JavaPlugin {
     public void onEnable() {
         this.getLogger().log(Level.INFO, "Starting updater...");
         this.updater = new Updater(this, 86090);
-        this.updater.runTaskTimerAsynchronously(this, 0L, 20L * 60L * 30L);
+        this.getServer().getScheduler().runTaskTimerAsynchronously(this, this.updater, 0L, 20L * 60L * 60L);
         this.economy = this.setupEconomy();
         if (this.economy != null) {
             this.getLogger().log(Level.INFO, "Economy has been successfully setup.");

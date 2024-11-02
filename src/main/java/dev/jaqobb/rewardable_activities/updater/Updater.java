@@ -3,7 +3,6 @@ package dev.jaqobb.rewardable_activities.updater;
 import dev.jaqobb.rewardable_activities.RewardableActivitiesConstants;
 import dev.jaqobb.rewardable_activities.RewardableActivitiesPlugin;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.scheduler.BukkitRunnable;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import javax.net.ssl.HttpsURLConnection;
 
-public class Updater extends BukkitRunnable {
+public class Updater implements Runnable {
     
     private final RewardableActivitiesPlugin plugin;
     private final int pluginId;
