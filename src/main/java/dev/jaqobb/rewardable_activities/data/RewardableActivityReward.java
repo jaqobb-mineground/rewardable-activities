@@ -5,6 +5,7 @@ import dev.jaqobb.rewardable_activities.util.RandomUtils;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -42,6 +43,26 @@ public record RewardableActivityReward(String group, double chance, double minim
     }
     
     public void reward(RewardableActivitiesPlugin plugin, Player player) {
+        if (plugin.isRewardLimiterEnabled() && !player.hasPermission("rewardableactivities.rewardlimiter.bypass")) {
+            RewardLimiterData data = plugin.getRewardLimiterData(player.getUniqueId());
+            if (data == null) {
+                data = new RewardLimiterData();
+                plugin.setRewardLimiterData(player.getUniqueId(), data);
+            }
+            if (data.getRewardsReceived() >= plugin.getRewardLimiterLimit() && data.getRewardsReceivedResetTime() != null && data.getRewardsReceivedResetTime().isAfter(Instant.now())) {
+                if (!data.isMessageSent()) {
+                    player.sendMessage(plugin.getRewardLimiterLimitReachedMessage());
+                    data.setMessageSent(true);
+                }
+                return;
+            }
+            if (data.getRewardsReceivedResetTime() == null || data.getRewardsReceivedResetTime().isBefore(Instant.now())) {
+                data.setRewardsReceived(0);
+                data.setRewardsReceivedResetTime(Instant.now().plusMillis(plugin.getRewardLimiterCooldown().toEpochMilli()));
+                data.setMessageSent(false);
+            }
+            data.setRewardsReceived(data.getRewardsReceived() + 1);
+        }
         if (plugin.getEconomy() != null && this.minimumEconomy >= 0.0D && this.maximumEconomy > 0.0D && this.minimumEconomy <= this.maximumEconomy) {
             double economy = this.getRandomEconomy();
             if (economy > 0.0D) {

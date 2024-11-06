@@ -1,3 +1,16 @@
+# General settings.
+general:
+  # Reward limiter settings.
+  reward-limiter:
+    # Enabling the reward limiter makes it so that the player can only receive a set amount of rewards within a set time frame.
+    enabled: false
+    # The player will be allowed to receive only this amount of rewards within the set time frame.
+    limit: 10
+    # The message the player will receive when they reach the reward limit.
+    limit-reached-message: "&cYou have reached the reward limit. You have to wait for a while before you can receive more rewards."
+    # The time after which the player will be able to receive rewards again, counting upon the first reward received. The cooldown is expressed in the format ‘10d’, ‘5h’, ‘30m’, ‘20s’, ‘10m30s’, etc.
+    cooldown: 10m
+
 # Block related settings and rewardable activities.
 block:
   # Ownership check settings.

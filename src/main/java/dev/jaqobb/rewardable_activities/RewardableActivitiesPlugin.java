@@ -2,6 +2,7 @@ package dev.jaqobb.rewardable_activities;
 
 import dev.jaqobb.rewardable_activities.command.RewardableActivitiesCommand;
 import dev.jaqobb.rewardable_activities.command.RewardableActivitiesCommandTabCompleter;
+import dev.jaqobb.rewardable_activities.data.RewardLimiterData;
 import dev.jaqobb.rewardable_activities.data.RewardableActivityRepository;
 import dev.jaqobb.rewardable_activities.listener.block.BlockBreakListener;
 import dev.jaqobb.rewardable_activities.listener.block.BlockExplodeListener;
@@ -17,7 +18,9 @@ import dev.jaqobb.rewardable_activities.listener.player.PlayerJoinListener;
 import dev.jaqobb.rewardable_activities.listener.plugin.PluginDisableListener;
 import dev.jaqobb.rewardable_activities.listener.plugin.PluginEnableListener;
 import dev.jaqobb.rewardable_activities.updater.Updater;
+import dev.jaqobb.rewardable_activities.util.TimeUtils;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -25,12 +28,22 @@ import org.bukkit.metadata.Metadatable;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public class RewardableActivitiesPlugin extends JavaPlugin {
     
+    private boolean rewardLimiterEnabled;
+    private int rewardLimiterLimit;
+    private String rewardLimiterLimitReachedMessage;
+    private Instant rewardLimiterCooldown;
+    private Map<UUID, RewardLimiterData> rewardLimiterData;
     private boolean blockBreakOwnershipCheckEnabled;
     private boolean blockPlaceOwnershipCheckEnabled;
     private boolean entityBreedOwnershipCheckEnabled;
@@ -83,21 +96,64 @@ public class RewardableActivitiesPlugin extends JavaPlugin {
     
     public void loadConfig(boolean reload) {
         this.getLogger().log(Level.INFO, (reload ? "Rel" : "L") + "oading configuration...");
+        this.rewardLimiterEnabled = this.getConfig().getBoolean("general.reward-limiter.enabled", false);
+        this.rewardLimiterLimitReachedMessage = ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("general.reward-limiter.limit-reached-message", "&cYou have reached the reward limit. You have to wait for a while before you can receive more rewards."));
+        this.rewardLimiterLimit = this.getConfig().getInt("general.reward-limiter.limit", 10);
+        String rewardLimiterCooldown = this.getConfig().getString("general.reward-limiter.cooldown", "10m");
+        this.rewardLimiterCooldown = TimeUtils.parse(rewardLimiterCooldown);
+        if (this.rewardLimiterLimit < 1 || this.rewardLimiterCooldown == null) {
+            this.getLogger().log(Level.WARNING, "Reward limiter was not properly configured. As such, it will be disabled.");
+            this.rewardLimiterEnabled = false;
+        }
+        this.getLogger().log(Level.INFO, "Reward limiter:");
+        this.getLogger().log(Level.INFO, " * Enabled: " + (this.rewardLimiterEnabled ? "yes" : "no"));
+        if (this.rewardLimiterEnabled) {
+            this.getLogger().log(Level.INFO, " * Limit: " + this.rewardLimiterLimit);
+            this.getLogger().log(Level.INFO, " * Cooldown: " + this.rewardLimiterCooldown.toEpochMilli() + " ms (" + rewardLimiterCooldown + ")");
+            this.rewardLimiterData = new HashMap<>();
+        }
         this.blockBreakOwnershipCheckEnabled = this.getConfig().getBoolean("block.ownership-check.break", this.getConfig().getBoolean("block.ownership-check.place", this.getConfig().getBoolean("block.ownership-check")));
         this.blockPlaceOwnershipCheckEnabled = this.getConfig().getBoolean("block.ownership-check.place", true);
         this.entityBreedOwnershipCheckEnabled = this.getConfig().getBoolean("entity.ownership-check.breed", this.getConfig().getBoolean("entity.ownership-check", true));
         this.entitySpawnerOwnershipCheckEnabled = this.getConfig().getBoolean("entity.ownership-check.spawner", true);
-        this.getLogger().log(Level.INFO, (reload ? "Rel" : "L") + "oading rewardable activities...");
         if (this.repository == null) {
             this.repository = new RewardableActivityRepository(this);
         }
         this.repository.loadAllActivities(reload);
-        this.getLogger().log(Level.INFO, (reload ? "Rel" : "L") + "oaded rewardable activities:");
+        this.getLogger().log(Level.INFO, "Rewardable activities:");
         this.getLogger().log(Level.INFO, " * Block break: " + this.repository.getBlockBreakActivities().size());
         this.getLogger().log(Level.INFO, " * Block place: " + this.repository.getBlockPlaceActivities().size());
         this.getLogger().log(Level.INFO, " * Entity kill: " + this.repository.getEntityKillActivities().size());
         this.getLogger().log(Level.INFO, " * Entity breed: " + this.repository.getEntityBreedActivities().size());
         this.getLogger().log(Level.INFO, " * Item fish: " + this.repository.getItemFishActivities().size());
+    }
+    
+    public boolean isRewardLimiterEnabled() {
+        return this.rewardLimiterEnabled;
+    }
+    
+    public int getRewardLimiterLimit() {
+        return this.rewardLimiterLimit;
+    }
+    
+    public String getRewardLimiterLimitReachedMessage() {
+        return this.rewardLimiterLimitReachedMessage;
+    }
+    
+    public Instant getRewardLimiterCooldown() {
+        return this.rewardLimiterCooldown;
+    }
+    
+    public Map<UUID, RewardLimiterData> getRewardLimiterData() {
+        return Collections.unmodifiableMap(this.rewardLimiterData);
+    }
+    
+    public RewardLimiterData getRewardLimiterData(UUID uniqueId) {
+        return this.rewardLimiterData.get(uniqueId);
+    }
+    
+    public void setRewardLimiterData(UUID uniqueId, RewardLimiterData data) {
+        this.rewardLimiterData.put(uniqueId, data);
     }
     
     public boolean isBlockBreakOwnershipCheckEnabled() {
