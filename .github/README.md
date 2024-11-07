@@ -16,6 +16,7 @@ Click [here](https://www.spigotmc.org/resources/rewardable-activities.86090/) to
 * Entity spawner ownership check (not rewarding players when they kill an entity that was spawned by a spawner) - since 1.7.0.
 * Rewarding players when they fish an item - since 1.8.0.
 * Block place ownership check (not rewarding players when they place a block in a place where there was already a block broken by a player) - since 1.8.2.
+* Reward limiting (allowing players to receive only a certain amount of rewards before having to wait) - since 1.9.0
 
 ## Usage
 
