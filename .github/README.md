@@ -1,6 +1,6 @@
 # Rewardable Activities
 
-Rewardtest players upon performing certain activities. Rewardable Activities allow server owners to set up activities (like killing entities, mining blocks, breeding mobs, etc.) that will reward players upon performing them. The plugin is highly customizable and allows server owners to set up multiple rewards per group, set up the amount of rewards, and the chance of getting a reward.
+Reward players upon performing certain activities. Rewardable Activities allow server owners to set up activities (like killing entities, mining blocks, breeding mobs, etc.) that will reward players upon performing them. The plugin is highly customizable and allows server owners to set up multiple rewards per group, set up the amount of rewards, and the chance of getting a reward.
 
 Click [here](https://www.spigotmc.org/resources/rewardable-activities.86090/) to get to the plugin's SpigotMC page.
 
